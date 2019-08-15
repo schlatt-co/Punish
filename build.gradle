@@ -1,0 +1,23 @@
+plugins {
+    id "com.github.johnrengelman.shadow" version "5.0.0"
+    id 'java'
+    id 'idea'
+}
+
+group 'io.github.jroy'
+
+sourceCompatibility = 1.8
+
+repositories {
+    maven { url "https://papermc.io/repo/repository/maven-public/" }
+}
+
+dependencies {
+    compileOnly "com.destroystokyo.paper:paper-api:1.14.4-R0.1-SNAPSHOT"
+}
+
+compileJava.options.encoding = 'UTF-8'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
