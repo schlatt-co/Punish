@@ -31,7 +31,7 @@ public class PunishHistoryCommand implements CommandExecutor {
       if (player.hasPermission("trevor.mod") && args.length >= 1) {
         //noinspection deprecation
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
-        if (!target.hasPlayedBefore()) {
+        if (!offlinePlayer.hasPlayedBefore()) {
           player.sendMessage(ChatColor.AQUA + "Punish>> " + ChatColor.YELLOW + "This player has never joined the server!");
           return true;
         }
