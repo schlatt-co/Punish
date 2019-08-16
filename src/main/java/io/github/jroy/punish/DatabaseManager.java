@@ -64,7 +64,7 @@ public class DatabaseManager implements Listener {
 
   private BanToken getActiveBan(UUID uuid) {
     try {
-      PreparedStatement statement = connection.prepareStatement("SELECT * FROM punishments WHERE targetUuid = ? AND type = 'ban' AND (((" + System.currentTimeMillis() + " - epoch) < wait) OR wait = 0)");
+      PreparedStatement statement = connection.prepareStatement("SELECT * FROM punishments WHERE targetUuid = ? AND type = 'ban' AND (((" + System.currentTimeMillis() + " - epoch) < wait) OR wait = 0) ORDER BY id DESC");
       statement.setString(1, uuid.toString());
       ResultSet set = statement.executeQuery();
       if (set.next()) {
