@@ -38,7 +38,7 @@ public class Util {
   }
 
   public static String convertString(long time) {
-    if (time == -1) {
+    if (time <= 0) {
       return "Permanent";
     }
 
