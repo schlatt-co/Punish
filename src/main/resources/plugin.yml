@@ -8,3 +8,7 @@ commands:
     description: Punishment Command
     usage: /punish
     aliases: p
+  punishhistory:
+    description: Punishment History Command
+    usage: /punishhistory
+    aliases: ph
