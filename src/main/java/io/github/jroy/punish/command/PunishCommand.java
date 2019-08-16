@@ -27,6 +27,12 @@ public class PunishCommand implements CommandExecutor {
   public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
     if (sender instanceof Player) {
       Player player = (Player) sender;
+
+      if (!player.hasPermission("trevor.mod")) {
+        player.sendMessage(ChatColor.AQUA + "Punish>> " + ChatColor.YELLOW + "Insufficient Permissions!");
+        return true;
+      }
+
       if (args.length < 2) {
         player.sendMessage(ChatColor.AQUA + "Punish>> " + ChatColor.YELLOW + "Correct Usage: /punish <username> <reason>");
         return true;
