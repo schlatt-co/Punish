@@ -4,6 +4,8 @@ import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.InventoryManager;
 import fr.minuskube.inv.content.InventoryContents;
 import fr.minuskube.inv.content.InventoryProvider;
+import io.github.jroy.punish.model.BanToken;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -13,6 +15,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 public class PunishGUI implements InventoryProvider {
@@ -50,7 +54,7 @@ public class PunishGUI implements InventoryProvider {
 
     //Sidebar
     contents.set(2, 7, ClickableItem.of(item(Material.PAPER, "&a&lWarning", "", "&7Example Warning Input;", "&f   Spam - Constantly spamming advertising", "&f   TOS - Calling players 'cunt' and saying 'ni**er'", "&f   Killing - Killed Obama", "&f   0-Tick Farm - Made illegal redstone farm unintentionally"), inventoryClickEvent -> {
-      databaseManager.addPunishment(target, 0L, reason, "warning", "null", "null", player);
+      databaseManager.addPunishment(target, 0L, reason, "warning", "null", "1", player);
       inventoryManager.getInventory(player).get().close(player);
     }));
     contents.set(3, 7, ClickableItem.of(item(Material.REDSTONE_BLOCK, "&a&lPermanent Ban", "&fBan Duration: &ePermanent", "", "&2Must supply detailed reason for Ban."), inventoryClickEvent -> {
@@ -99,9 +103,84 @@ public class PunishGUI implements InventoryProvider {
       databaseManager.addPunishment(target, 1209600000L, reason, "ban", "client", "3", player);
       inventoryManager.getInventory(player).get().close(player);
     }));
+
+
+    //History
+    List<BanToken> history = databaseManager.getPunishHistory(target.getUniqueId(), 9);
+    if (history != null) {
+      int column = 0;
+      for (BanToken token : history) {
+        Material material;
+        String text;
+        switch (token.getCategory()) {
+          case "null": {
+            material = Material.PAPER;
+            text = "Warning";
+            break;
+          }
+          case "perm": {
+            material = Material.REDSTONE_BLOCK;
+            text = "Permanent Ban";
+            break;
+          }
+          case "chat": {
+            material = Material.WRITABLE_BOOK;
+            text = "Chat Offense";
+            break;
+          }
+          case "general": {
+            material = Material.HOPPER;
+            text = "General Offense";
+            break;
+          }
+          case "client": {
+            material = Material.IRON_SWORD;
+            text = "Client Mod";
+            break;
+          }
+          default: {
+            material = Material.FIREWORK_ROCKET;
+            text = "Unknown";
+            break;
+          }
+        }
+
+        boolean shine = false;
+        List<String> lore = new ArrayList<>();
+        lore.add("&fSeverity: &e" + token.getSev());
+        if (token.getType().equals("ban")) {
+          lore.add("&fLength: &e" + databaseManager.convertString(token.getWait()));
+        }
+        lore.add("&fDate: &e" + new Date(token.getEpoch()));
+        lore.add("&fStaff: &e" + Bukkit.getOfflinePlayer(token.getStaffUuid()).getName());
+        lore.add("");
+        lore.add("&fReason: &e" + token.getReason());
+        if (token.getRemovedUuid() != null) {
+          lore.add("");
+          lore.add("&fRemoved by: &e" + Bukkit.getOfflinePlayer(token.getRemovedUuid()).getName());
+          lore.add("&fRemoved Reason: &e" + token.getRemovedReason());
+        } else if (token.getType().equals("ban") && ((System.currentTimeMillis() - token.getEpoch()) < token.getWait() || token.getWait() == 0L)) {
+          shine = true;
+        }
+
+
+        contents.set(5, column, ClickableItem.of(item(material, "&a&l" + text, shine, lore), inventoryClickEvent -> {
+          if (token.getRemovedUuid() == null && inventoryClickEvent.isRightClick()) {
+            databaseManager.removePunishment(token.getId(), player.getUniqueId(), reason);
+            inventoryManager.getInventory(player).get().close(player);
+          }
+        }));
+        column++;
+      }
+    }
   }
 
   private ItemStack item(Material material, String name, String... lore) {
+    return item(material, name, false, Arrays.asList(lore));
+  }
+
+  @SuppressWarnings("SameParameterValue")
+  private ItemStack item(Material material, String name, boolean shine, List<String> lore) {
     ItemStack itemStack = new ItemStack(material);
     ItemMeta itemMeta = itemStack.getItemMeta();
     //noinspection ConstantConditions
@@ -111,6 +190,9 @@ public class PunishGUI implements InventoryProvider {
       lores.add(ChatColor.translateAlternateColorCodes('&', curLore));
     }
     itemMeta.setLore(lores);
+    if (shine) {
+      itemMeta.addEnchant(DatabaseManager.glowEnchantment, 1, true);
+    }
     itemStack.setItemMeta(itemMeta);
     return itemStack;
   }
