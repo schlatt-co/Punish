@@ -1,5 +1,6 @@
 plugins {
     id "com.github.johnrengelman.shadow" version "5.0.0"
+    id "io.freefair.lombok" version "3.6.4"
     id 'java'
     id 'idea'
 }
@@ -9,11 +10,18 @@ group 'io.github.jroy'
 sourceCompatibility = 1.8
 
 repositories {
-    maven { url "https://papermc.io/repo/repository/maven-public/" }
+    mavenCentral()
+    maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots' }
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
 }
 
 dependencies {
-    compileOnly "com.destroystokyo.paper:paper-api:1.14.4-R0.1-SNAPSHOT"
+    compile 'mysql:mysql-connector-java:8.0.16'
+    compile 'org.xerial:sqlite-jdbc:3.28.0'
+    compile 'fr.minuskube.inv:smart-invs:1.2.7'
+    compileOnly "org.spigotmc:spigot-api:1.14.4-R0.1-SNAPSHOT"
+    compileOnly "net.md-5:bungeecord-api:1.14-SNAPSHOT"
+    compileOnly 'org.projectlombok:lombok:1.18.8'
 }
 
 compileJava.options.encoding = 'UTF-8'
