@@ -56,7 +56,7 @@ public class DatabaseManager implements Listener {
   @EventHandler(priority = EventPriority.HIGHEST)
   public void onPlayerJoin(AsyncPlayerPreLoginEvent event) {
     BanToken banToken = getActiveBan(event.getUniqueId());
-    if (banToken == null) {
+    if (banToken == null || banToken.getRemovedUuid() != null) {
       return;
     }
     event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, ChatColor.RED + "" + ChatColor.BOLD + "You have been banned for " + Util.convertString(banToken.getWait() == 0 ? -1 : banToken.getWait() - (System.currentTimeMillis() - banToken.getEpoch())) + " by " + Bukkit.getOfflinePlayer(banToken.getStaffUuid()).getName() + "\n" + ChatColor.WHITE + banToken.getReason() + "\n" + ChatColor.DARK_GREEN + "Appeal by doing in " + ChatColor.GREEN + "!ticket new appeal" + ChatColor.DARK_GREEN + " the " + ChatColor.GREEN + "#mc-support" + ChatColor.DARK_GREEN + " channel in discord");
