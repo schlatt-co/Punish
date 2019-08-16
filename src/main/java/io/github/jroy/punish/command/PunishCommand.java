@@ -39,10 +39,6 @@ public class PunishCommand implements CommandExecutor {
       }
       //noinspection deprecation
       OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
-      if (!target.hasPlayedBefore()) {
-        player.sendMessage(ChatColor.AQUA + "Punish>> " + ChatColor.YELLOW + "This player has never joined the server!");
-        return true;
-      }
 
       StringBuilder reasonBuilder = new StringBuilder();
       for (String arg : args) {
