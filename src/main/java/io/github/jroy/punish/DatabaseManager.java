@@ -1,6 +1,7 @@
 package io.github.jroy.punish;
 
 import io.github.jroy.punish.model.BanToken;
+import io.github.jroy.punish.model.NotificationToken;
 import io.github.jroy.punish.util.GlowEnchantment;
 import io.github.jroy.punish.util.Util;
 import org.bukkit.Bukkit;
@@ -13,20 +14,20 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.lang.reflect.Field;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @SuppressWarnings("DuplicatedCode")
 public class DatabaseManager implements Listener {
 
+  private Punish plugin;
   private Connection connection;
-
   public static GlowEnchantment glowEnchantment;
+
+  private Map<UUID, NotificationToken> warningNotifications = new HashMap<>();
 
   static {
     try {
@@ -41,6 +42,7 @@ public class DatabaseManager implements Listener {
   }
 
   DatabaseManager(Punish plugin) throws ClassNotFoundException, SQLException {
+    this.plugin = plugin;
     if (!plugin.getDataFolder().exists()) {
       //noinspection ResultOfMethodCallIgnored
       plugin.getDataFolder().mkdir();
@@ -54,12 +56,24 @@ public class DatabaseManager implements Listener {
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
-  public void onPlayerJoin(AsyncPlayerPreLoginEvent event) {
+  public void onPlayerPreLogin(AsyncPlayerPreLoginEvent event) {
     BanToken banToken = getActiveBan(event.getUniqueId());
     if (banToken == null || banToken.getRemovedUuid() != null) {
       return;
     }
     event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, ChatColor.RED + "" + ChatColor.BOLD + "You have been banned for " + Util.convertString(banToken.getWait() == 0 ? -1 : banToken.getWait() - (System.currentTimeMillis() - banToken.getEpoch())) + " by " + Bukkit.getOfflinePlayer(banToken.getStaffUuid()).getName() + "\n" + ChatColor.WHITE + banToken.getReason() + "\n" + ChatColor.DARK_GREEN + "Appeal by doing in " + ChatColor.GREEN + "!ticket new appeal" + ChatColor.DARK_GREEN + " the " + ChatColor.GREEN + "#mc-support" + ChatColor.DARK_GREEN + " channel in discord");
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onPlayerJoin(PlayerJoinEvent event) {
+    if (warningNotifications.containsKey(event.getPlayer().getUniqueId())) {
+      NotificationToken token = warningNotifications.get(event.getPlayer().getUniqueId());
+      warningNotifications.remove(event.getPlayer().getUniqueId());
+      Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
+        event.getPlayer().sendMessage(ChatColor.AQUA + "Punish>> " + ChatColor.GRAY + token.getStaffName() + " issued a friendly warning to you");
+        event.getPlayer().sendMessage(ChatColor.AQUA + "Punish>> " + ChatColor.GRAY + ChatColor.BOLD + "Reason: " + ChatColor.RESET + ChatColor.GRAY + token.getReason());
+      }, 80);
+    }
   }
 
   private BanToken getActiveBan(UUID uuid) {
@@ -105,7 +119,18 @@ public class DatabaseManager implements Listener {
       statement.setString(8, String.valueOf(System.currentTimeMillis()));
       statement.executeUpdate();
 
-      Bukkit.broadcastMessage(ChatColor.AQUA + "Punish>> " + ChatColor.GRAY + staff.getName() + (type.equals("ban") ? " banned " + target.getName() + " for " + Util.convertString(delay) : " issued a friendly warning to " + target.getName()));
+      boolean notifiedPlayer = false;
+      for (Player player : Bukkit.getOnlinePlayers()) {
+        player.sendMessage(ChatColor.AQUA + "Punish>> " + ChatColor.GRAY + staff.getName() + (type.equals("ban") ? " banned " + target.getName() + " for " + Util.convertString(delay) : " issued a friendly warning to " + (player.getName().equals(target.getName()) ? "you" : target.getName())));
+        if (player.getName().equals(target.getName())) {
+          player.sendMessage(ChatColor.AQUA + "Punish>> " + ChatColor.GRAY + ChatColor.BOLD + "Reason: " + ChatColor.RESET + "" + ChatColor.GRAY + reason);
+          notifiedPlayer = true;
+        }
+      }
+
+      if (type.equals("warning") && !notifiedPlayer) {
+        warningNotifications.put(target.getUniqueId(), new NotificationToken(staff.getName(), reason));
+      }
 
       if (type.equals("ban") && target.isOnline()) {
         Objects.requireNonNull(target.getPlayer()).kickPlayer(ChatColor.RED + "" + ChatColor.BOLD + "You have been banned for " + Util.convertString(delay) + " by " + staff.getName() + "\n" + ChatColor.WHITE + reason + "\n" + ChatColor.DARK_GREEN + "Appeal by doing in " + ChatColor.GREEN + "!ticket new appeal" + ChatColor.DARK_GREEN + " the " + ChatColor.GREEN + "#mc-support" + ChatColor.DARK_GREEN + " channel in discord");
