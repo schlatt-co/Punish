@@ -1,19 +1,22 @@
 package io.github.jroy.punish;
 
 import fr.minuskube.inv.InventoryManager;
+import io.github.jroy.punish.command.PunishCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.SQLException;
 
 public class Punish extends JavaPlugin {
 
+  @SuppressWarnings("ConstantConditions")
   @Override
   public void onEnable() {
     log("Loading Punish...");
     try {
       DatabaseManager databaseManager = new DatabaseManager(this);
-      //noinspection ConstantConditions
-      getCommand("punish").setExecutor(new PunishCommand(new InventoryManager(this), databaseManager));
+      InventoryManager inventoryManager = new InventoryManager(this);
+      inventoryManager.init();
+      getCommand("punish").setExecutor(new PunishCommand(inventoryManager, databaseManager));
       getServer().getPluginManager().registerEvents(databaseManager, this);
     } catch (ClassNotFoundException | SQLException e) {
       e.printStackTrace();

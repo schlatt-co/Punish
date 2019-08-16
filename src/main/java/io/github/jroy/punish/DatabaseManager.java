@@ -1,6 +1,8 @@
 package io.github.jroy.punish;
 
 import io.github.jroy.punish.model.BanToken;
+import io.github.jroy.punish.util.GlowEnchantment;
+import io.github.jroy.punish.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -14,16 +16,17 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 
 import java.lang.reflect.Field;
 import java.sql.*;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 @SuppressWarnings("DuplicatedCode")
 public class DatabaseManager implements Listener {
 
   private Connection connection;
 
-  static GlowEnchantment glowEnchantment;
+  public static GlowEnchantment glowEnchantment;
 
   static {
     try {
@@ -56,7 +59,7 @@ public class DatabaseManager implements Listener {
     if (banToken == null) {
       return;
     }
-    event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, ChatColor.RED + "" + ChatColor.BOLD + "You have been banned for " + convertString(banToken.getWait() == 0 ? -1 : banToken.getWait() - (System.currentTimeMillis() - banToken.getEpoch())) + " by " + Bukkit.getOfflinePlayer(banToken.getStaffUuid()).getName() + "\n" + ChatColor.WHITE + banToken.getReason() + "\n" + ChatColor.DARK_GREEN + "Appeal by doing in " + ChatColor.GREEN + "!ticket new appeal" + ChatColor.DARK_GREEN + " the " + ChatColor.GREEN + "#mc-support" + ChatColor.DARK_GREEN + " channel in discord");
+    event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, ChatColor.RED + "" + ChatColor.BOLD + "You have been banned for " + Util.convertString(banToken.getWait() == 0 ? -1 : banToken.getWait() - (System.currentTimeMillis() - banToken.getEpoch())) + " by " + Bukkit.getOfflinePlayer(banToken.getStaffUuid()).getName() + "\n" + ChatColor.WHITE + banToken.getReason() + "\n" + ChatColor.DARK_GREEN + "Appeal by doing in " + ChatColor.GREEN + "!ticket new appeal" + ChatColor.DARK_GREEN + " the " + ChatColor.GREEN + "#mc-support" + ChatColor.DARK_GREEN + " channel in discord");
   }
 
   private BanToken getActiveBan(UUID uuid) {
@@ -73,7 +76,7 @@ public class DatabaseManager implements Listener {
     return null;
   }
 
-  List<BanToken> getPunishHistory(UUID uuid, int limit) {
+  public List<BanToken> getPunishHistory(UUID uuid, int limit) {
     try {
       PreparedStatement statement = connection.prepareStatement("SELECT * FROM punishments WHERE targetUuid = ? ORDER BY id DESC " + (limit != 0 ? "LIMIT " + limit : ""));
       statement.setString(1, uuid.toString());
@@ -89,7 +92,7 @@ public class DatabaseManager implements Listener {
     return null;
   }
 
-  void addPunishment(OfflinePlayer target, long delay, String reason, String type, String category, String severity, Player staff) {
+  public void addPunishment(OfflinePlayer target, long delay, String reason, String type, String category, String severity, Player staff) {
     try {
       PreparedStatement statement = connection.prepareStatement("INSERT INTO punishments(targetUuid, wait, reason, type, category, sev, staffUuid, epoch) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
       statement.setString(1, target.getUniqueId().toString());
@@ -102,17 +105,17 @@ public class DatabaseManager implements Listener {
       statement.setString(8, String.valueOf(System.currentTimeMillis()));
       statement.executeUpdate();
 
-      Bukkit.broadcastMessage(ChatColor.AQUA + "Punish>> " + ChatColor.GRAY + staff.getName() + (type.equals("ban") ? " banned " + target.getName() + " for " + convertString(delay == 0 ? -1 : delay) : " issued a friendly warning to " + target.getName()));
+      Bukkit.broadcastMessage(ChatColor.AQUA + "Punish>> " + ChatColor.GRAY + staff.getName() + (type.equals("ban") ? " banned " + target.getName() + " for " + Util.convertString(delay == 0 ? -1 : delay) : " issued a friendly warning to " + target.getName()));
 
       if (type.equals("ban") && target.isOnline()) {
-        Objects.requireNonNull(target.getPlayer()).kickPlayer(ChatColor.RED + "" + ChatColor.BOLD + "You have been banned for " + convertString(delay == 0 ? -1 : delay) + " by " + staff.getName() + "\n" + ChatColor.WHITE + reason + "\n" + ChatColor.DARK_GREEN + "Appeal by doing in " + ChatColor.GREEN + "!ticket new appeal" + ChatColor.DARK_GREEN + " the " + ChatColor.GREEN + "#mc-support" + ChatColor.DARK_GREEN + " channel in discord");
+        Objects.requireNonNull(target.getPlayer()).kickPlayer(ChatColor.RED + "" + ChatColor.BOLD + "You have been banned for " + Util.convertString(delay == 0 ? -1 : delay) + " by " + staff.getName() + "\n" + ChatColor.WHITE + reason + "\n" + ChatColor.DARK_GREEN + "Appeal by doing in " + ChatColor.GREEN + "!ticket new appeal" + ChatColor.DARK_GREEN + " the " + ChatColor.GREEN + "#mc-support" + ChatColor.DARK_GREEN + " channel in discord");
       }
     } catch (SQLException e) {
       e.printStackTrace();
     }
   }
 
-  void removePunishment(int id, UUID removedUuid, String removedReason) {
+  public void removePunishment(int id, UUID removedUuid, String removedReason) {
     try {
       PreparedStatement statement = connection.prepareStatement("UPDATE punishments SET removedUuid = ?, removedReason = ? WHERE id = ?");
       statement.setString(1, removedUuid.toString());
@@ -122,53 +125,5 @@ public class DatabaseManager implements Listener {
     } catch (SQLException e) {
       e.printStackTrace();
     }
-  }
-
-  public enum TimeUnit {
-    DAYS,
-    HOURS,
-    MINUTES,
-    SECONDS
-  }
-
-  String convertString(long time) {
-    if (time == -1) {
-      return "Permanent";
-    }
-
-    TimeUnit type;
-
-    if (time < 60000) {
-      type = TimeUnit.SECONDS;
-    } else if (time < 3600000) {
-      type = TimeUnit.MINUTES;
-    } else if (time < 86400000) {
-      type = TimeUnit.HOURS;
-    } else {
-      type = TimeUnit.DAYS;
-    }
-
-
-    String text;
-    double num;
-    if (type == TimeUnit.DAYS) {
-      text = (num = trim(time / 86400000d)) + " Day";
-    } else if (type == TimeUnit.HOURS) {
-      text = (num = trim(time / 3600000d)) + " Hour";
-    } else if (type == TimeUnit.MINUTES) {
-      text = (num = trim(time / 60000d)) + " Minute";
-    } else {
-      text = (num = trim(time / 1000d)) + " Second";
-    }
-
-    if (num != 1)
-      text += "s";
-
-    return text;
-  }
-
-  private double trim(double d) {
-    DecimalFormat twoDForm = new DecimalFormat("#.#", new DecimalFormatSymbols(Locale.US));
-    return Double.parseDouble(twoDForm.format(d));
   }
 }

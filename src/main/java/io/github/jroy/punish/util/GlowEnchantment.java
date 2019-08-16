@@ -1,4 +1,4 @@
-package io.github.jroy.punish;
+package io.github.jroy.punish.util;
 
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentTarget;
@@ -7,7 +7,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class GlowEnchantment extends EnchantmentWrapper {
 
-  GlowEnchantment() {
+  public GlowEnchantment() {
     super("glow");
   }
 

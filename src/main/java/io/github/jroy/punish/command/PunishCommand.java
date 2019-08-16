@@ -1,7 +1,9 @@
-package io.github.jroy.punish;
+package io.github.jroy.punish.command;
 
 import fr.minuskube.inv.InventoryManager;
 import fr.minuskube.inv.SmartInventory;
+import io.github.jroy.punish.DatabaseManager;
+import io.github.jroy.punish.gui.PunishGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
