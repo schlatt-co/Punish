@@ -67,6 +67,11 @@ public class DatabaseManager implements Listener {
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void onPlayerJoin(PlayerJoinEvent event) {
+    if (fetchCache(event.getPlayer().getName()) == null) {
+      addCache(event.getPlayer().getUniqueId(), event.getPlayer().getName());
+      return;
+    }
+    updateCache(event.getPlayer().getUniqueId(), event.getPlayer().getName());
     if (warningNotifications.containsKey(event.getPlayer().getUniqueId())) {
       NotificationToken token = warningNotifications.get(event.getPlayer().getUniqueId());
       warningNotifications.remove(event.getPlayer().getUniqueId());
@@ -74,11 +79,6 @@ public class DatabaseManager implements Listener {
         event.getPlayer().sendMessage(ChatColor.AQUA + "Punish>> " + ChatColor.GRAY + token.getStaffName() + " issued a friendly warning to you");
         event.getPlayer().sendMessage(ChatColor.AQUA + "Punish>> " + ChatColor.GRAY + ChatColor.BOLD + "Reason: " + ChatColor.RESET + ChatColor.GRAY + token.getReason());
       }, 80);
-      if (fetchCache(event.getPlayer().getName()) == null) {
-        addCache(event.getPlayer().getUniqueId(), event.getPlayer().getName());
-        return;
-      }
-      updateCache(event.getPlayer().getUniqueId(), event.getPlayer().getName());
     }
   }
 
