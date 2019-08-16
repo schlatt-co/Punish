@@ -9,7 +9,6 @@ import io.github.jroy.punish.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -21,9 +20,9 @@ import java.util.List;
 public class PunishHistoryGUI implements InventoryProvider {
 
   private DatabaseManager databaseManager;
-  private OfflinePlayer target;
+  private PunishUser target;
 
-  public PunishHistoryGUI(DatabaseManager databaseManager, OfflinePlayer target) {
+  public PunishHistoryGUI(DatabaseManager databaseManager, PunishUser target) {
     this.databaseManager = databaseManager;
     this.target = target;
   }
@@ -33,12 +32,12 @@ public class PunishHistoryGUI implements InventoryProvider {
     ItemStack head = new ItemStack(Material.PLAYER_HEAD, 1);
     SkullMeta headMeta = (SkullMeta) head.getItemMeta();
     //noinspection ConstantConditions
-    headMeta.setOwningPlayer(target);
+    headMeta.setOwningPlayer(target.getPlayer());
     headMeta.setDisplayName(ChatColor.GREEN + "" + ChatColor.BOLD + target.getName());
     head.setItemMeta(headMeta);
     contents.set(0, 4, ClickableItem.empty(head));
 
-    List<BanToken> history = databaseManager.getPunishHistory(target.getUniqueId(), 28);
+    List<BanToken> history = databaseManager.getPunishHistory(target.getUuid(), 28);
 
 
     int row = 1;

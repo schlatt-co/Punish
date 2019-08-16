@@ -1,12 +1,12 @@
 package io.github.jroy.punish;
 
+import io.github.jroy.punish.gui.PunishUser;
 import io.github.jroy.punish.model.BanToken;
 import io.github.jroy.punish.model.NotificationToken;
 import io.github.jroy.punish.util.GlowEnchantment;
 import io.github.jroy.punish.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentWrapper;
 import org.bukkit.entity.Player;
@@ -52,6 +52,7 @@ public class DatabaseManager implements Listener {
     connection = DriverManager.getConnection("jdbc:sqlite:" + plugin.getDataFolder().getAbsolutePath() + "/players.db");
     plugin.log("Connected to database!");
     connection.createStatement().execute("CREATE TABLE IF NOT EXISTS punishments( id integer PRIMARY KEY AUTOINCREMENT, targetUuid text NOT NULL, epoch integer NOT NULL, wait integer NOT NULL, reason text NOT NULL, type text NOT NULL, category text NOT NULL, sev text NOT NULL, staffUuid text NOT NULL, removedUuid text DEFAULT 'null' NOT NULL, removedReason text DEFAULT 'null');");
+    connection.createStatement().execute("CREATE TABLE IF NOT EXISTS uuidCache(id integer PRIMARY KEY  AUTOINCREMENT, username text NOT NULL, uuid text NOT NULL);");
     plugin.log("Database tables initialized!");
   }
 
@@ -73,6 +74,47 @@ public class DatabaseManager implements Listener {
         event.getPlayer().sendMessage(ChatColor.AQUA + "Punish>> " + ChatColor.GRAY + token.getStaffName() + " issued a friendly warning to you");
         event.getPlayer().sendMessage(ChatColor.AQUA + "Punish>> " + ChatColor.GRAY + ChatColor.BOLD + "Reason: " + ChatColor.RESET + ChatColor.GRAY + token.getReason());
       }, 80);
+      if (fetchCache(event.getPlayer().getName()) == null) {
+        addCache(event.getPlayer().getUniqueId(), event.getPlayer().getName());
+        return;
+      }
+      updateCache(event.getPlayer().getUniqueId(), event.getPlayer().getName());
+    }
+  }
+
+  public UUID fetchCache(String username) {
+    try {
+      PreparedStatement statement = connection.prepareStatement("SELECT uuid FROM uuidCache WHERE username = ?");
+      statement.setString(1, username);
+      ResultSet set = statement.executeQuery();
+      if (set.next()) {
+        return UUID.fromString(set.getString("uuid"));
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
+
+  private void addCache(UUID uuid, String username) {
+    try {
+      PreparedStatement statement = connection.prepareStatement("INSERT INTO uuidCache(uuid, username) VALUES (?, ?)");
+      statement.setString(1, uuid.toString());
+      statement.setString(2, username);
+      statement.executeUpdate();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void updateCache(UUID uuid, String username) {
+    try {
+      PreparedStatement statement = connection.prepareStatement("UPDATE uuidCache SET username = ? WHERE uuid = ?");
+      statement.setString(1, username);
+      statement.setString(2, uuid.toString());
+      statement.executeUpdate();
+    } catch (SQLException e) {
+      e.printStackTrace();
     }
   }
 
@@ -106,10 +148,10 @@ public class DatabaseManager implements Listener {
     return null;
   }
 
-  public void addPunishment(OfflinePlayer target, long delay, String reason, String type, String category, String severity, Player staff) {
+  public void addPunishment(PunishUser target, long delay, String reason, String type, String category, String severity, Player staff) {
     try {
       PreparedStatement statement = connection.prepareStatement("INSERT INTO punishments(targetUuid, wait, reason, type, category, sev, staffUuid, epoch) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-      statement.setString(1, target.getUniqueId().toString());
+      statement.setString(1, target.getUuid().toString());
       statement.setLong(2, delay);
       statement.setString(3, reason);
       statement.setString(4, type);
@@ -129,11 +171,11 @@ public class DatabaseManager implements Listener {
       }
 
       if (type.equals("warning") && !notifiedPlayer) {
-        warningNotifications.put(target.getUniqueId(), new NotificationToken(staff.getName(), reason));
+        warningNotifications.put(target.getUuid(), new NotificationToken(staff.getName(), reason));
       }
 
-      if (type.equals("ban") && target.isOnline()) {
-        Objects.requireNonNull(target.getPlayer()).kickPlayer(ChatColor.RED + "" + ChatColor.BOLD + "You have been banned for " + Util.convertString(delay) + " by " + staff.getName() + "\n" + ChatColor.WHITE + reason + "\n" + ChatColor.DARK_GREEN + "Appeal by doing in " + ChatColor.GREEN + "!ticket new appeal" + ChatColor.DARK_GREEN + " the " + ChatColor.GREEN + "#mc-support" + ChatColor.DARK_GREEN + " channel in discord");
+      if (type.equals("ban") && target.getPlayer().isOnline()) {
+        Objects.requireNonNull(target.getPlayer().getPlayer()).kickPlayer(ChatColor.RED + "" + ChatColor.BOLD + "You have been banned for " + Util.convertString(delay) + " by " + staff.getName() + "\n" + ChatColor.WHITE + reason + "\n" + ChatColor.DARK_GREEN + "Appeal by doing in " + ChatColor.GREEN + "!ticket new appeal" + ChatColor.DARK_GREEN + " the " + ChatColor.GREEN + "#mc-support" + ChatColor.DARK_GREEN + " channel in discord");
       }
     } catch (SQLException e) {
       e.printStackTrace();

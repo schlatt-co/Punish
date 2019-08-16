@@ -4,6 +4,7 @@ import fr.minuskube.inv.InventoryManager;
 import fr.minuskube.inv.SmartInventory;
 import io.github.jroy.punish.DatabaseManager;
 import io.github.jroy.punish.gui.PunishGUI;
+import io.github.jroy.punish.gui.PunishUser;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -11,6 +12,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.UUID;
 
 public class PunishCommand implements CommandExecutor {
 
@@ -20,7 +23,6 @@ public class PunishCommand implements CommandExecutor {
   public PunishCommand(InventoryManager inventoryManager, DatabaseManager databaseManager) {
     this.inventoryManager = inventoryManager;
     this.databaseManager = databaseManager;
-    this.inventoryManager.init();
   }
 
   @Override
@@ -38,7 +40,16 @@ public class PunishCommand implements CommandExecutor {
         return true;
       }
       //noinspection deprecation
-      OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
+      OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
+      PunishUser target = new PunishUser(offlinePlayer.getName(), offlinePlayer.getUniqueId(), offlinePlayer);
+      if (!offlinePlayer.isOnline()) {
+        UUID uuid = databaseManager.fetchCache(target.getName());
+        if (uuid == null) {
+          player.sendMessage(ChatColor.AQUA + "Punish>> " + ChatColor.YELLOW + "This player has never joined the server!");
+          return true;
+        }
+        target.setUuid(uuid);
+      }
 
       StringBuilder reasonBuilder = new StringBuilder();
       for (String arg : args) {

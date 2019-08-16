@@ -5,6 +5,7 @@ import fr.minuskube.inv.InventoryManager;
 import fr.minuskube.inv.content.InventoryContents;
 import fr.minuskube.inv.content.InventoryProvider;
 import io.github.jroy.punish.DatabaseManager;
+import io.github.jroy.punish.Punish;
 import io.github.jroy.punish.model.BanToken;
 import io.github.jroy.punish.util.Util;
 import org.bukkit.Bukkit;
@@ -22,11 +23,11 @@ import java.util.List;
 public class PunishGUI implements InventoryProvider {
 
   private DatabaseManager databaseManager;
-  private OfflinePlayer target;
+  private PunishUser target;
   private String reason;
   private InventoryManager inventoryManager;
 
-  public PunishGUI(DatabaseManager databaseManager, OfflinePlayer target, String reason, InventoryManager inventoryManager) {
+  public PunishGUI(DatabaseManager databaseManager, PunishUser target, String reason, InventoryManager inventoryManager) {
     this.databaseManager = databaseManager;
     this.target = target;
     this.reason = reason;
@@ -39,7 +40,7 @@ public class PunishGUI implements InventoryProvider {
     ItemStack head = new ItemStack(Material.PLAYER_HEAD, 1);
     SkullMeta headMeta = (SkullMeta) head.getItemMeta();
     //noinspection ConstantConditions
-    headMeta.setOwningPlayer(target);
+    headMeta.setOwningPlayer(target.getPlayer());
     headMeta.setDisplayName(ChatColor.GREEN + "" + ChatColor.BOLD + target.getName());
     List<String> headLore = new ArrayList<>();
     headLore.add(reason);
@@ -106,7 +107,7 @@ public class PunishGUI implements InventoryProvider {
 
 
     //History
-    List<BanToken> history = databaseManager.getPunishHistory(target.getUniqueId(), 9);
+    List<BanToken> history = databaseManager.getPunishHistory(target.getUuid(), 9);
     if (history != null) {
       int column = 0;
       for (BanToken token : history) {
