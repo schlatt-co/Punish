@@ -1,6 +1,6 @@
 name: Punish
 author: JRoy
-version: 0.1
+version: 1.0
 api-version: 1.14
 main: io.github.jroy.punish.Punish
 commands:
