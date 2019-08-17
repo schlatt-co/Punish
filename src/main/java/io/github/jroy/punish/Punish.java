@@ -1,6 +1,7 @@
 package io.github.jroy.punish;
 
 import fr.minuskube.inv.InventoryManager;
+import io.github.jroy.punish.command.AddCacheCommand;
 import io.github.jroy.punish.command.PunishCommand;
 import io.github.jroy.punish.command.PunishHistoryCommand;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -19,6 +20,7 @@ public class Punish extends JavaPlugin {
       inventoryManager.init();
       getCommand("punish").setExecutor(new PunishCommand(inventoryManager, databaseManager));
       getCommand("punishhistory").setExecutor(new PunishHistoryCommand(databaseManager, inventoryManager));
+      getCommand("addcache").setExecutor(new AddCacheCommand(databaseManager));
       getServer().getPluginManager().registerEvents(databaseManager, this);
     } catch (ClassNotFoundException | SQLException e) {
       e.printStackTrace();

@@ -96,7 +96,7 @@ public class DatabaseManager implements Listener {
     return null;
   }
 
-  private void addCache(UUID uuid, String username) {
+  public void addCache(UUID uuid, String username) {
     try {
       PreparedStatement statement = connection.prepareStatement("INSERT INTO uuidCache(uuid, username) VALUES (?, ?)");
       statement.setString(1, uuid.toString());
@@ -107,7 +107,7 @@ public class DatabaseManager implements Listener {
     }
   }
 
-  private void updateCache(UUID uuid, String username) {
+  public void updateCache(UUID uuid, String username) {
     try {
       PreparedStatement statement = connection.prepareStatement("UPDATE uuidCache SET username = ? WHERE uuid = ?");
       statement.setString(1, username);

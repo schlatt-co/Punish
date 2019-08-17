@@ -12,3 +12,6 @@ commands:
     description: Punishment History Command
     usage: /punishhistory
     aliases: ph
+  addcache:
+    description: Adds name to uuid cache
+    usage: /addcache
