@@ -67,7 +67,7 @@ public class DatabaseManager implements Listener {
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void onPlayerJoin(PlayerJoinEvent event) {
-    if (fetchCache(event.getPlayer().getName()) == null) {
+    if (!isCached(event.getPlayer().getUniqueId())) {
       addCache(event.getPlayer().getUniqueId(), event.getPlayer().getName());
       return;
     }
@@ -79,6 +79,18 @@ public class DatabaseManager implements Listener {
         event.getPlayer().sendMessage(ChatColor.AQUA + "Punish>> " + ChatColor.GRAY + token.getStaffName() + " issued a friendly warning to you");
         event.getPlayer().sendMessage(ChatColor.AQUA + "Punish>> " + ChatColor.GRAY + ChatColor.BOLD + "Reason: " + ChatColor.RESET + ChatColor.GRAY + token.getReason());
       }, 80);
+    }
+  }
+
+  private boolean isCached(UUID uuid) {
+    try {
+      PreparedStatement statement = connection.prepareStatement("SELECT name FROM uuidCache WHERE uuid = ?");
+      statement.setString(1, uuid.toString());
+      ResultSet set = statement.executeQuery();
+      return set.next();
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return false;
     }
   }
 
@@ -165,7 +177,6 @@ public class DatabaseManager implements Listener {
       for (Player player : Bukkit.getOnlinePlayers()) {
         player.sendMessage(ChatColor.AQUA + "Punish>> " + ChatColor.GRAY + staff.getName() + (type.equals("ban") ? " banned " + target.getName() + " for " + Util.convertString(delay) : " issued a friendly warning to " + (player.getName().equals(target.getName()) ? "you" : target.getName())));
         if (player.getName().equals(target.getName())) {
-          player.sendMessage(ChatColor.AQUA + "Punish>> " + ChatColor.GRAY + ChatColor.BOLD + "Reason: " + ChatColor.RESET + "" + ChatColor.GRAY + reason);
           notifiedPlayer = true;
         }
       }
