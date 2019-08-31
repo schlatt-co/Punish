@@ -176,6 +176,7 @@ public class DatabaseManager implements Listener {
       boolean notifiedPlayer = false;
       for (Player player : Bukkit.getOnlinePlayers()) {
         player.sendMessage(ChatColor.AQUA + "Punish>> " + ChatColor.GRAY + staff.getName() + (type.equals("ban") ? " banned " + target.getName() + " for " + Util.convertString(delay) : " issued a friendly warning to " + (player.getName().equals(target.getName()) ? "you" : target.getName())));
+        player.sendMessage(ChatColor.AQUA + "Punish>> " + ChatColor.GRAY + ChatColor.BOLD + "Reason: " + ChatColor.RESET + "" + ChatColor.GRAY + reason);
         if (player.getName().equals(target.getName())) {
           notifiedPlayer = true;
         }
