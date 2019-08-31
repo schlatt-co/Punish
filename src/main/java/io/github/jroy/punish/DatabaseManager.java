@@ -84,7 +84,7 @@ public class DatabaseManager implements Listener {
 
   private boolean isCached(UUID uuid) {
     try {
-      PreparedStatement statement = connection.prepareStatement("SELECT name FROM uuidCache WHERE uuid = ?");
+      PreparedStatement statement = connection.prepareStatement("SELECT username FROM uuidCache WHERE uuid = ?");
       statement.setString(1, uuid.toString());
       ResultSet set = statement.executeQuery();
       return set.next();
