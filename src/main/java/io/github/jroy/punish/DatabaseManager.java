@@ -84,7 +84,7 @@ public class DatabaseManager implements Listener {
 
   public UUID fetchCache(String username) {
     try {
-      PreparedStatement statement = connection.prepareStatement("SELECT uuid FROM uuidCache WHERE username = ?");
+      PreparedStatement statement = connection.prepareStatement("SELECT uuid FROM uuidCache WHERE username = ? COLLATE NOCASE");
       statement.setString(1, username);
       ResultSet set = statement.executeQuery();
       if (set.next()) {
