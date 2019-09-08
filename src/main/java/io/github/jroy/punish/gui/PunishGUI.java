@@ -5,13 +5,11 @@ import fr.minuskube.inv.InventoryManager;
 import fr.minuskube.inv.content.InventoryContents;
 import fr.minuskube.inv.content.InventoryProvider;
 import io.github.jroy.punish.DatabaseManager;
-import io.github.jroy.punish.Punish;
 import io.github.jroy.punish.model.BanToken;
 import io.github.jroy.punish.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -155,11 +153,21 @@ public class PunishGUI implements InventoryProvider {
         lore.add("&fDate: &e" + new Date(token.getEpoch()));
         lore.add("&fStaff: &e" + Bukkit.getOfflinePlayer(token.getStaffUuid()).getName());
         lore.add("");
-        lore.add("&fReason: &e" + token.getReason());
+        List<String> reasonList = Util.wrapLore(token.getReason());
+        lore.add("&fReason: &e" + reasonList.get(0));
+        reasonList.remove(0);
+        for (String str : reasonList) {
+          lore.add("&e" + str);
+        }
         if (token.getRemovedUuid() != null) {
           lore.add("");
           lore.add("&fRemoved by: &e" + Bukkit.getOfflinePlayer(token.getRemovedUuid()).getName());
-          lore.add("&fRemoved Reason: &e" + token.getRemovedReason());
+          List<String> removeReasonList = Util.wrapLore(token.getRemovedReason());
+          lore.add("&fRemoved Reason: &e" + removeReasonList.get(0));
+          removeReasonList.remove(0);
+          for (String str : removeReasonList) {
+            lore.add("&e" + str);
+          }
         } else if (token.getType().equals("ban") && ((System.currentTimeMillis() - token.getEpoch()) < token.getWait() || token.getWait() == 0L)) {
           shine = true;
         }

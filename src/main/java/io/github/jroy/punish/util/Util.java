@@ -8,10 +8,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class Util {
@@ -76,5 +73,15 @@ public class Util {
   private static double trim(double d) {
     DecimalFormat twoDForm = new DecimalFormat("#.#", new DecimalFormatSymbols(Locale.US));
     return Double.parseDouble(twoDForm.format(d));
+  }
+
+  public static List<String> wrapLore(String string) {
+    StringBuilder sb = new StringBuilder(string);
+
+    int i = 0;
+    while (i + 35 < sb.length() && (i = sb.lastIndexOf(" ", i + 35)) != -1) {
+      sb.replace(i, i + 1, "\n");
+    }
+    return new LinkedList<>(Arrays.asList(sb.toString().split("\n")));
   }
 }
