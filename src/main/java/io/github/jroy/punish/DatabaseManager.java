@@ -1,5 +1,7 @@
 package io.github.jroy.punish;
 
+import club.minnced.discord.webhook.WebhookClient;
+import club.minnced.discord.webhook.WebhookClientBuilder;
 import io.github.jroy.punish.gui.PunishUser;
 import io.github.jroy.punish.model.BanToken;
 import io.github.jroy.punish.model.NotificationToken;
@@ -27,6 +29,7 @@ public class DatabaseManager implements Listener {
   private Connection connection;
   public static GlowEnchantment glowEnchantment;
 
+  static WebhookClient webhookClient;
   private Map<UUID, NotificationToken> warningNotifications = new HashMap<>();
 
   static {
@@ -43,6 +46,15 @@ public class DatabaseManager implements Listener {
 
   DatabaseManager(Punish plugin) throws ClassNotFoundException, SQLException {
     this.plugin = plugin;
+    plugin.getConfig().addDefault("webhookUrl", "url");
+    plugin.getConfig().options().copyDefaults(true);
+    plugin.saveConfig();
+    plugin.log("Loaded config!");
+    plugin.log("Connecting to webhook...");
+    if (!Objects.equals(plugin.getConfig().getString("webhookUrl"), "url")) {
+      webhookClient = new WebhookClientBuilder(Objects.requireNonNull(plugin.getConfig().getString("webhookUrl"))).setDaemon(true).build();
+    }
+    plugin.log("Connected to webhook!");
     if (!plugin.getDataFolder().exists()) {
       //noinspection ResultOfMethodCallIgnored
       plugin.getDataFolder().mkdir();
@@ -174,12 +186,19 @@ public class DatabaseManager implements Listener {
       statement.executeUpdate();
 
       boolean notifiedPlayer = false;
+      String line1 = ChatColor.AQUA + "Punish>> " + ChatColor.GRAY + staff.getName() + (type.equals("ban") ? " banned " + target.getName() + " for " + Util.convertString(delay) : " issued a friendly warning to " + target.getName());
+      String line2 = ChatColor.AQUA + "Punish>> " + ChatColor.GRAY + ChatColor.BOLD + "Reason: " + ChatColor.RESET + "" + ChatColor.GRAY + reason;
       for (Player player : Bukkit.getOnlinePlayers()) {
-        player.sendMessage(ChatColor.AQUA + "Punish>> " + ChatColor.GRAY + staff.getName() + (type.equals("ban") ? " banned " + target.getName() + " for " + Util.convertString(delay) : " issued a friendly warning to " + (player.getName().equals(target.getName()) ? "you" : target.getName())));
-        player.sendMessage(ChatColor.AQUA + "Punish>> " + ChatColor.GRAY + ChatColor.BOLD + "Reason: " + ChatColor.RESET + "" + ChatColor.GRAY + reason);
+        player.sendMessage(line1.replace(player.getName(), "You"));
+        player.sendMessage(line2);
         if (player.getName().equals(target.getName())) {
           notifiedPlayer = true;
         }
+      }
+
+      if (webhookClient != null) {
+        webhookClient.send(ChatColor.stripColor(line1));
+        webhookClient.send(ChatColor.stripColor(line2));
       }
 
       if (type.equals("warning") && !notifiedPlayer) {

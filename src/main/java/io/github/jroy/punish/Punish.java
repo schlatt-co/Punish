@@ -28,6 +28,13 @@ public class Punish extends JavaPlugin {
     }
   }
 
+  @Override
+  public void onDisable() {
+    if (DatabaseManager.webhookClient != null) {
+      DatabaseManager.webhookClient.close();
+    }
+  }
+
   void log(String text) {
     System.out.println("[Punish] " + text);
   }
