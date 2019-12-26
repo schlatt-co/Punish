@@ -3,6 +3,7 @@ author: JRoy
 version: 1.0
 api-version: 1.14
 main: io.github.jroy.punish.Punish
+depend: [PluginLibrary]
 commands:
   punish:
     description: Punishment Command
