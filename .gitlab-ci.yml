@@ -1,4 +1,4 @@
-image: java:8-jdk
+image: java:11-jdk
 
 stages:
 - build
@@ -14,7 +14,7 @@ cache:
 build:
     stage: build
     script:
-    - ./gradlew shadowJar
+    - ./gradlew build
     - cp build/libs/*-all.jar .
     artifacts:
         paths:
