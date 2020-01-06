@@ -17,4 +17,4 @@ jobs:
       run: |
         chmod +x gradlew
         ./gradlew assemble
-        ./gradlew shadowJar
+        ./gradlew build
