@@ -90,15 +90,15 @@ public class PunishGUI implements InventoryProvider {
     }));
 
     //Client Mod
-    contents.set(2, 5, ClickableItem.of(Util.item(Material.GREEN_DYE, "&a&lSeverity 1", "&fBan Duration: 4 Days", "&7First Time/Light Offense", "    &fX-Ray", "    &fSpeed", "    &fFly"), inventoryClickEvent -> {
+    contents.set(2, 5, ClickableItem.of(Util.item(Material.GREEN_DYE, "&a&lSeverity 1", "&fBan Duration: &e4 Days", "&7First Time/Light Offense", "    &fX-Ray", "    &fSpeed", "    &fFly"), inventoryClickEvent -> {
       databaseManager.addPunishment(target, 345600000L, reason, "ban", "client", "1", player);
       inventoryManager.getInventory(player).get().close(player);
     }));
-    contents.set(3, 5, ClickableItem.of(Util.item(Material.YELLOW_DYE, "&a&lSeverity 2", "&fBan Duration: 1.5 Weeks", "&7Second Time/Medium Offense", "    &fChest ESP", "    &fLight Nuker", "    &fX-Ray/Speed/Fly after a severity 1 ban"), inventoryClickEvent -> {
+    contents.set(3, 5, ClickableItem.of(Util.item(Material.YELLOW_DYE, "&a&lSeverity 2", "&fBan Duration: &e1.5 Weeks", "&7Second Time/Medium Offense", "    &fChest ESP", "    &fLight Nuker", "    &fX-Ray/Speed/Fly after a severity 1 ban"), inventoryClickEvent -> {
       databaseManager.addPunishment(target, 907200000L, reason, "ban", "client", "2", player);
       inventoryManager.getInventory(player).get().close(player);
     }));
-    contents.set(4, 5, ClickableItem.of(Util.item(Material.RED_DYE, "&a&lSeverity 3", "&fBan Duration: 2 Weeks", "&7Third Time/Severe Offense", "    &fSevere Nuker", "    &fX-Ray/Speed/Fly after a severity 2 ban"), inventoryClickEvent -> {
+    contents.set(4, 5, ClickableItem.of(Util.item(Material.RED_DYE, "&a&lSeverity 3", "&fBan Duration: &e2 Weeks", "&7Third Time/Severe Offense", "    &fSevere Nuker", "    &fX-Ray/Speed/Fly after a severity 2 ban"), inventoryClickEvent -> {
       databaseManager.addPunishment(target, 1209600000L, reason, "ban", "client", "3", player);
       inventoryManager.getInventory(player).get().close(player);
     }));
