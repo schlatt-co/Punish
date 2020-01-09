@@ -5,12 +5,9 @@ import club.minnced.discord.webhook.WebhookClientBuilder;
 import io.github.jroy.punish.gui.PunishUser;
 import io.github.jroy.punish.model.BanToken;
 import io.github.jroy.punish.model.NotificationToken;
-import io.github.jroy.punish.util.GlowEnchantment;
 import io.github.jroy.punish.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.enchantments.EnchantmentWrapper;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -18,7 +15,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.*;
 
@@ -27,22 +23,9 @@ public class DatabaseManager implements Listener {
 
   private Punish plugin;
   private Connection connection;
-  public static GlowEnchantment glowEnchantment;
 
   static WebhookClient webhookClient;
   private Map<UUID, NotificationToken> warningNotifications = new HashMap<>();
-
-  static {
-    try {
-      Field acceptingNew = Enchantment.class.getDeclaredField("acceptingNew");
-      acceptingNew.setAccessible(true);
-      acceptingNew.set(null, true);
-      glowEnchantment = new GlowEnchantment();
-      EnchantmentWrapper.registerEnchantment(glowEnchantment);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
 
   DatabaseManager(Punish plugin) throws ClassNotFoundException, SQLException {
     this.plugin = plugin;

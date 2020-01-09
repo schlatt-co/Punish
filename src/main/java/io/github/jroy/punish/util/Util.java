@@ -1,6 +1,6 @@
 package io.github.jroy.punish.util;
 
-import io.github.jroy.punish.DatabaseManager;
+import io.github.jroy.pluginlibrary.PluginLibrary;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -28,7 +28,7 @@ public class Util {
     }
     itemMeta.setLore(lores);
     if (shine) {
-      itemMeta.addEnchant(DatabaseManager.glowEnchantment, 1, true);
+      itemMeta.addEnchant(PluginLibrary.glowEnchantment, 1, true);
     }
     itemStack.setItemMeta(itemMeta);
     return itemStack;
