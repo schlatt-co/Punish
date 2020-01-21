@@ -18,7 +18,7 @@ repositories {
 
 dependencies {
     compileOnly "com.github.schlatt-co:PluginLibrary:532c1e9a71"
-    compileOnly "org.spigotmc:spigot-api:1.15.1-R0.1-SNAPSHOT"
+    compileOnly "org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT"
     compileOnly "net.md-5:bungeecord-api:1.15-SNAPSHOT"
     compileOnly 'org.projectlombok:lombok:1.18.8'
 }
