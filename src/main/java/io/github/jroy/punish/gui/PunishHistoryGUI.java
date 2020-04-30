@@ -19,8 +19,8 @@ import java.util.List;
 
 public class PunishHistoryGUI implements InventoryProvider {
 
-  private DatabaseManager databaseManager;
-  private PunishUser target;
+  private final DatabaseManager databaseManager;
+  private final PunishUser target;
 
   public PunishHistoryGUI(DatabaseManager databaseManager, PunishUser target) {
     this.databaseManager = databaseManager;

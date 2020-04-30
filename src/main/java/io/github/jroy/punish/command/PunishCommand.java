@@ -17,8 +17,8 @@ import java.util.UUID;
 
 public class PunishCommand implements CommandExecutor {
 
-  private InventoryManager inventoryManager;
-  private DatabaseManager databaseManager;
+  private final InventoryManager inventoryManager;
+  private final DatabaseManager databaseManager;
 
   public PunishCommand(InventoryManager inventoryManager, DatabaseManager databaseManager) {
     this.inventoryManager = inventoryManager;

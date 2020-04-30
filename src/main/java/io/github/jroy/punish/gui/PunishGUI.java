@@ -20,10 +20,10 @@ import java.util.List;
 
 public class PunishGUI implements InventoryProvider {
 
-  private DatabaseManager databaseManager;
-  private PunishUser target;
-  private String reason;
-  private InventoryManager inventoryManager;
+  private final DatabaseManager databaseManager;
+  private final PunishUser target;
+  private final String reason;
+  private final InventoryManager inventoryManager;
 
   public PunishGUI(DatabaseManager databaseManager, PunishUser target, String reason, InventoryManager inventoryManager) {
     this.databaseManager = databaseManager;

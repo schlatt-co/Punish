@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public class AddCacheCommand implements CommandExecutor {
 
-  private DatabaseManager databaseManager;
+  private final DatabaseManager databaseManager;
 
   public AddCacheCommand(DatabaseManager databaseManager) {
     this.databaseManager = databaseManager;

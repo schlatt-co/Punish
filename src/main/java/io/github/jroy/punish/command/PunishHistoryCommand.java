@@ -17,8 +17,8 @@ import java.util.UUID;
 
 public class PunishHistoryCommand implements CommandExecutor {
 
-  private DatabaseManager databaseManager;
-  private InventoryManager inventoryManager;
+  private final DatabaseManager databaseManager;
+  private final InventoryManager inventoryManager;
 
   public PunishHistoryCommand(DatabaseManager databaseManager, InventoryManager inventoryManager) {
     this.databaseManager = databaseManager;

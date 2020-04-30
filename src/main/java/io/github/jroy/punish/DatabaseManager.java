@@ -21,11 +21,11 @@ import java.util.*;
 @SuppressWarnings("DuplicatedCode")
 public class DatabaseManager implements Listener {
 
-  private Punish plugin;
-  private Connection connection;
+  private final Punish plugin;
+  private final Connection connection;
 
   static WebhookClient webhookClient;
-  private Map<UUID, NotificationToken> warningNotifications = new HashMap<>();
+  private final Map<UUID, NotificationToken> warningNotifications = new HashMap<>();
 
   DatabaseManager(Punish plugin) throws ClassNotFoundException, SQLException {
     this.plugin = plugin;
