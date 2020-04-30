@@ -14,9 +14,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class PunishGUI implements InventoryProvider {
 
@@ -41,7 +46,12 @@ public class PunishGUI implements InventoryProvider {
     headMeta.setOwningPlayer(target.getPlayer());
     headMeta.setDisplayName(ChatColor.GREEN + "" + ChatColor.BOLD + target.getName());
     List<String> headLore = new ArrayList<>();
-    headLore.add(reason);
+    for (String lore : Util.wrapLore("Reason: " + reason)) {
+      headLore.add(ChatColor.WHITE + lore);
+    }
+    headLore.add("");
+    OffsetDateTime joinDate = Instant.ofEpochMilli(target.getPlayer().getFirstPlayed()).atOffset(ZoneOffset.UTC);
+    headLore.add(ChatColor.WHITE + "Join Date: " + joinDate.getMonth().getDisplayName(TextStyle.FULL, Locale.US) + " " + joinDate.getDayOfMonth() + " " + joinDate.getYear());
     headMeta.setLore(headLore);
     head.setItemMeta(headMeta);
 
