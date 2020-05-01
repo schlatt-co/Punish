@@ -8,6 +8,7 @@ import fr.minuskube.inv.content.InventoryProvider;
 import io.github.jroy.punish.util.Util;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -88,7 +89,9 @@ public class TimeSelectGUI implements InventoryProvider {
             .build();
     this.onSelect = onSelect;
   }
-
+  public Inventory show(Player player) {
+    return inventory.open(player);
+  }
   @Override
   public void init(Player player, InventoryContents contents) {
     // B = Border, - = Subtract, + = Add, HDW = [Hours, Days, Weeks], C = Clock

@@ -57,9 +57,22 @@ public class PunishGUI implements InventoryProvider {
 
     //Labels
     contents.set(0, 4, ClickableItem.empty(head));
-    contents.set(1, 1, ClickableItem.empty(Util.item(Material.WRITABLE_BOOK, "&a&lChat Offense", "&7Verbal Abuse, Spam, Harrassment, TOS, etc")));
-    contents.set(1, 3, ClickableItem.empty(Util.item(Material.HOPPER, "&a&lGeneral Offense", "&7Zero-tick machines, stealing, grief, etc")));
-    contents.set(1, 5, ClickableItem.empty(Util.item(Material.IRON_SWORD, "&a&lClient Mod", "&7X-ray, Speed, Fly, Inventory Hacks, etc")));
+    contents.set(1, 1, ClickableItem.of(
+        Util.item(Material.WRITABLE_BOOK, "&a&lChat Offense", "&7Verbal Abuse, Spam, Harrassment, TOS, etc", "Click to set custom ban length"),
+        c -> new TimeSelectGUI(inventoryManager, "Choose ban length",
+            length -> databaseManager.addPunishment(target, length, reason, "ban", "chat", "1", player)).show(player)
+    ));
+
+    contents.set(1, 3, ClickableItem.of(Util.item(Material.HOPPER, "&a&lGeneral Offense", "&7Zero-tick machines, stealing, grief, etc", "Click to set custom ban length"),
+        c -> new TimeSelectGUI(inventoryManager, "Choose ban length",
+            length -> databaseManager.addPunishment(target, length, reason, "ban", "general", "1", player))
+    ));
+
+
+    contents.set(1, 5, ClickableItem.of(Util.item(Material.IRON_SWORD, "&a&lClient Mod", "&7X-ray, Speed, Fly, Inventory Hacks, etc", "Click to set custom ban length"),
+        c -> new TimeSelectGUI(inventoryManager, "Choose ban length",
+            length -> databaseManager.addPunishment(target, length, reason, "ban", "client", "1", player))
+    ));
 
     //Sidebar
     contents.set(2, 7, ClickableItem.of(Util.item(Material.PAPER, "&a&lWarning", "", "&7Example Warning Input;", "&f   Spam - Constantly spamming advertising", "&f   TOS - Calling players 'cunt' and saying 'ni**er'", "&f   Killing - Killed Obama", "&f   0-Tick Farm - Made illegal redstone farm unintentionally"), inventoryClickEvent -> {
