@@ -61,12 +61,15 @@ public class Util {
         List<String> lore = new ArrayList<>();
         lore.add("&fSeverity: &e" + token.getSev());
         if (token.getType().equals("ban")) {
-          lore.add("&fLength: &e" + Util.convertString(token.getWait()));
+          lore.add("&fLength: &e" + convertString(token.getWait()));
+          if ((System.currentTimeMillis() - token.getEpoch()) < token.getWait()) {
+            lore.add("&fRemaining: &e" + convertString(token.getWait() - (System.currentTimeMillis() - token.getEpoch())));
+          }
         }
         lore.add("&fDate: &e" + new Date(token.getEpoch()));
         lore.add("&fStaff: &e" + Bukkit.getOfflinePlayer(token.getStaffUuid()).getName());
         lore.add("");
-        List<String> reasonList = Util.wrapLore(token.getReason());
+        List<String> reasonList = wrapLore(token.getReason());
         lore.add("&fReason: &e" + reasonList.get(0));
         reasonList.remove(0);
         for (String str : reasonList) {
@@ -75,7 +78,7 @@ public class Util {
         if (token.getRemovedUuid() != null) {
           lore.add("");
           lore.add("&fRemoved by: &e" + Bukkit.getOfflinePlayer(token.getRemovedUuid()).getName());
-          List<String> removeReasonList = Util.wrapLore(token.getRemovedReason());
+          List<String> removeReasonList = wrapLore(token.getRemovedReason());
           lore.add("&fRemoved Reason: &e" + removeReasonList.get(0));
           removeReasonList.remove(0);
           for (String str : removeReasonList) {
