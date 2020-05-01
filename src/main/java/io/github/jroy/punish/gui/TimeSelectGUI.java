@@ -8,24 +8,34 @@ import fr.minuskube.inv.content.InventoryProvider;
 import io.github.jroy.punish.util.Util;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.function.Consumer;
 
 public class TimeSelectGUI implements InventoryProvider {
-  private SmartInventory inventory;
-
+  private final SmartInventory inventory;
+  private final Consumer<Long> onSelect;
   private int hours = 0;
   private int days = 0;
   private int weeks = 0;
 
-  private final Consumer<Long> onSelect;
+  TimeSelectGUI(InventoryManager inventoryManager, String title, Consumer<Long> onSelect) {
+    this.inventory =
+        SmartInventory.builder()
+            .id(title)
+            .provider(this)
+            .manager(inventoryManager)
+            .size(5, 9)
+            .title(title)
+            .build();
+    this.onSelect = onSelect;
+  }
 
   private static ItemStack getRemoveItem(int quantity, String timePeriod) {
     ItemStack item = new ItemStack(Material.SNOWBALL, quantity);
     ItemMeta meta = item.getItemMeta();
+    assert meta != null;
     meta.setDisplayName("Remove " + quantity + " " + timePeriod + "(s)");
     item.setItemMeta(meta);
     return item;
@@ -34,6 +44,7 @@ public class TimeSelectGUI implements InventoryProvider {
   private static ItemStack getAddItem(int quantity, String timePeriod) {
     ItemStack item = new ItemStack(Material.SLIME_BALL, quantity);
     ItemMeta meta = item.getItemMeta();
+    assert meta != null;
     meta.setDisplayName("Add " + quantity + " " + timePeriod + "(s)");
     item.setItemMeta(meta);
     return item;
@@ -77,21 +88,10 @@ public class TimeSelectGUI implements InventoryProvider {
     return (long) hours * 3600000 + (long) days * 86400000 + (long) 604800000;
   }
 
+  public void show(Player player) {
+    inventory.open(player);
+  }
 
-  TimeSelectGUI(InventoryManager inventoryManager, String title, Consumer<Long> onSelect) {
-    this.inventory =
-        SmartInventory.builder()
-            .id(title)
-            .provider(this)
-            .manager(inventoryManager)
-            .size(5, 9)
-            .title(title)
-            .build();
-    this.onSelect = onSelect;
-  }
-  public Inventory show(Player player) {
-    return inventory.open(player);
-  }
   @Override
   public void init(Player player, InventoryContents contents) {
     // B = Border, - = Subtract, + = Add, HDW = [Hours, Days, Weeks], C = Clock
