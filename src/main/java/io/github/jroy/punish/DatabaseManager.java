@@ -21,10 +21,9 @@ import java.util.*;
 @SuppressWarnings("DuplicatedCode")
 public class DatabaseManager implements Listener {
 
+  static WebhookClient webhookClient;
   private final Punish plugin;
   private final Connection connection;
-
-  static WebhookClient webhookClient;
   private final Map<UUID, NotificationToken> warningNotifications = new HashMap<>();
 
   DatabaseManager(Punish plugin) throws ClassNotFoundException, SQLException {
