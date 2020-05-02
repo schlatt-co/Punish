@@ -6,6 +6,7 @@ import fr.minuskube.inv.SmartInventory;
 import fr.minuskube.inv.content.InventoryContents;
 import fr.minuskube.inv.content.InventoryProvider;
 import io.github.jroy.punish.util.Util;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -20,7 +21,7 @@ public class TimeSelectGUI implements InventoryProvider {
   private int days = 0;
   private int weeks = 0;
 
-  TimeSelectGUI(InventoryManager inventoryManager, String title, Consumer<Long> onSelect) {
+  protected TimeSelectGUI(InventoryManager inventoryManager, String title, Consumer<Long> onSelect) {
     this.inventory =
         SmartInventory.builder()
             .id(title)
@@ -36,7 +37,7 @@ public class TimeSelectGUI implements InventoryProvider {
     ItemStack item = new ItemStack(Material.SNOWBALL, quantity);
     ItemMeta meta = item.getItemMeta();
     assert meta != null;
-    meta.setDisplayName("Remove " + quantity + " " + timePeriod + "(s)");
+    meta.setDisplayName(ChatColor.GRAY + "Remove " + ChatColor.YELLOW + quantity + " " + timePeriod + "(s)");
     item.setItemMeta(meta);
     return item;
   }
@@ -45,14 +46,14 @@ public class TimeSelectGUI implements InventoryProvider {
     ItemStack item = new ItemStack(Material.SLIME_BALL, quantity);
     ItemMeta meta = item.getItemMeta();
     assert meta != null;
-    meta.setDisplayName("Add " + quantity + " " + timePeriod + "(s)");
+      meta.setDisplayName(ChatColor.GRAY +"Add " + ChatColor.YELLOW + quantity + " " + timePeriod + "(s)");
     item.setItemMeta(meta);
     return item;
   }
 
   private static ItemStack getClock(int hours, int days, int weeks) {
-    return Util.item(Material.CLOCK, "Punish Time: ",
-        hours + " hours", days + " days", weeks + " weeks"
+    return Util.item(Material.CLOCK, ChatColor.YELLOW + "Punish Time: ",
+        "&7" + hours + " hours", "&7" + days + " days", "&7" + weeks + " weeks"
     );
   }
 
@@ -62,7 +63,7 @@ public class TimeSelectGUI implements InventoryProvider {
 
   private void changeHours(int delta, InventoryContents contents) {
     hours = Math.min(Math.max(0, hours + delta), 64);
-    ItemStack stack = Util.item(Material.OAK_BUTTON, "Hours");
+    ItemStack stack = Util.item(Material.OAK_BUTTON, "&eHours");
     stack.setAmount(hours);
     contents.set(1, 4, ClickableItem.empty(stack));
     updateClock(contents);
@@ -70,7 +71,7 @@ public class TimeSelectGUI implements InventoryProvider {
 
   private void changeDays(int delta, InventoryContents contents) {
     days = Math.min(Math.max(0, days + delta), 64);
-    ItemStack stack = Util.item(Material.STICK, "Days");
+    ItemStack stack = Util.item(Material.STICK, "&cDays");
     stack.setAmount(days);
     contents.set(2, 4, ClickableItem.empty(stack));
     updateClock(contents);
@@ -78,14 +79,14 @@ public class TimeSelectGUI implements InventoryProvider {
 
   private void changeWeeks(int delta, InventoryContents contents) {
     weeks = Math.min(Math.max(0, weeks + delta), 64);
-    ItemStack stack = Util.item(Material.OAK_PLANKS, "Weeks");
+    ItemStack stack = Util.item(Material.OAK_PLANKS, "&4Weeks");
     stack.setAmount(weeks);
     contents.set(3, 4, ClickableItem.empty(stack));
     updateClock(contents);
   }
 
   private long getTime() {
-    return (long) hours * 3600000 + (long) days * 86400000 + (long) 604800000;
+    return (hours * 3600000L) + (days * 86400000L) + (weeks * 604800000);
   }
 
   public void show(Player player) {
@@ -133,8 +134,8 @@ public class TimeSelectGUI implements InventoryProvider {
     contents.set(3, 6, ClickableItem.of(getAddItem(6, "week"), (c) -> changeWeeks(6, contents)));
     contents.set(3, 7, ClickableItem.of(getAddItem(12, "week"), (c) -> changeWeeks(12, contents)));
 
-    contents.set(4, 3, ClickableItem.of(Util.item(Material.RED_STAINED_GLASS_PANE, "Close"), e -> inventory.close(player)));
-    contents.set(4, 5, ClickableItem.of(Util.item(Material.LIME_STAINED_GLASS_PANE, "Accept"), e -> {
+    contents.set(4, 3, ClickableItem.of(Util.item(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "Close"), e -> inventory.close(player)));
+    contents.set(4, 5, ClickableItem.of(Util.item(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "Accept"), e -> {
       inventory.close(player);
       onSelect.accept(getTime());
     }));
