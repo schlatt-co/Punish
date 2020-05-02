@@ -56,20 +56,20 @@ public class PunishGUI implements InventoryProvider {
     //Labels
     contents.set(0, 4, ClickableItem.empty(head));
     contents.set(1, 1, ClickableItem.of(
-        Util.item(Material.WRITABLE_BOOK, "&a&lChat Offense", "&7Verbal Abuse, Spam, Harrassment, TOS, etc", "Click to set custom ban length"),
+        Util.item(Material.WRITABLE_BOOK, "&a&lChat Offense", "&7Verbal Abuse, Spam, Harrassment, TOS, etc", "", "", "&7Click to set custom a ban length", "&7Please use time below if possible!"),
         c -> new TimeSelectGUI(inventoryManager, "Choose ban length",
             length -> databaseManager.addPunishment(target, length, reason, "ban", "chat", "time", player)).show(player)
     ));
 
-    contents.set(1, 3, ClickableItem.of(Util.item(Material.HOPPER, "&a&lGeneral Offense", "&7Zero-tick machines, stealing, grief, etc", "Click to set custom ban length"),
+    contents.set(1, 3, ClickableItem.of(Util.item(Material.HOPPER, "&a&lGeneral Offense", "&7Zero-tick machines, stealing, grief, etc", "", "", "&7Click to set custom a ban length", "&7Please use time below if possible!"),
         c -> new TimeSelectGUI(inventoryManager, "Choose ban length",
-            length -> databaseManager.addPunishment(target, length, reason, "ban", "general", "time", player))
+            length -> databaseManager.addPunishment(target, length, reason, "ban", "general", "time", player)).show(player)
     ));
 
 
-    contents.set(1, 5, ClickableItem.of(Util.item(Material.IRON_SWORD, "&a&lClient Mod", "&7X-ray, Speed, Fly, Inventory Hacks, etc", "Click to set custom ban length"),
+    contents.set(1, 5, ClickableItem.of(Util.item(Material.IRON_SWORD, "&a&lClient Mod", "&7X-ray, Speed, Fly, Inventory Hacks, etc", "", "", "&7Click to set custom a ban length", "&7Please use time below if possible!"),
         c -> new TimeSelectGUI(inventoryManager, "Choose ban length",
-            length -> databaseManager.addPunishment(target, length, reason, "ban", "client", "time", player))
+            length -> databaseManager.addPunishment(target, length, reason, "ban", "client", "time", player)).show(player)
     ));
 
     //Sidebar
