@@ -132,7 +132,7 @@ public class PunishGUI implements InventoryProvider {
     for (HistoryToken historyToken : history) {
       contents.set(5, column, ClickableItem.of(historyToken.getItem(), inventoryClickEvent -> {
         if (historyToken.getId() != null && inventoryClickEvent.isRightClick()) {
-          databaseManager.removePunishment(historyToken.getId(), player.getUniqueId(), reason);
+          databaseManager.removePunishment(historyToken, player, reason);
           inventoryManager.getInventory(player).get().close(player);
         }
       }));

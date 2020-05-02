@@ -4,6 +4,7 @@ import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.WebhookClientBuilder;
 import io.github.jroy.punish.gui.PunishUser;
 import io.github.jroy.punish.model.BanToken;
+import io.github.jroy.punish.model.HistoryToken;
 import io.github.jroy.punish.model.NotificationToken;
 import io.github.jroy.punish.util.Util;
 import org.bukkit.Bukkit;
@@ -195,13 +196,22 @@ public class DatabaseManager implements Listener {
     }
   }
 
-  public void removePunishment(int id, UUID removedUuid, String removedReason) {
+  public void removePunishment(HistoryToken historyToken, Player removedStaff, String removedReason) {
     try {
       PreparedStatement statement = connection.prepareStatement("UPDATE punishments SET removedUuid = ?, removedReason = ? WHERE id = ?");
-      statement.setString(1, removedUuid.toString());
+      statement.setString(1, removedStaff.getUniqueId().toString());
       statement.setString(2, removedReason);
-      statement.setInt(3, id);
+      statement.setInt(3, historyToken.getId());
       statement.executeUpdate();
+
+      if (webhookClient != null) {
+        String duration = " ";
+        if (historyToken.getBanToken().getType().equals("ban")) {
+          duration = " with a duration of " + Util.convertString(historyToken.getBanToken().getWait());
+        }
+        webhookClient.send("Punish>> " + removedStaff.getName() + " removed a " + historyToken.getBanToken().getType() + " from " + Bukkit.getOfflinePlayer(historyToken.getBanToken().getTargetUuid()).getName() + duration);
+        webhookClient.send("Punish>> Reason: " + removedReason);
+      }
     } catch (SQLException e) {
       e.printStackTrace();
     }

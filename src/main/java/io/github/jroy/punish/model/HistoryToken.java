@@ -8,4 +8,5 @@ public class HistoryToken {
 
   private final ItemStack item;
   private final Integer id;
+  private final BanToken banToken;
 }

@@ -88,7 +88,7 @@ public class Util {
           shine = true;
         }
 
-        history.add(new HistoryToken(item(material, "&a&l" + text, shine, lore), token.getRemovedUuid() == null ? token.getId() : null));
+        history.add(new HistoryToken(item(material, "&a&l" + text, shine, lore), token.getRemovedUuid() == null ? token.getId() : null, token));
       }
     }
     return history;
